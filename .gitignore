@@ -1,3 +1,6 @@
+# dotenv
+.env
+
 # CAP stock-monitor
 _out
 *.db
