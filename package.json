@@ -21,6 +21,7 @@
     "@sap/cds-dk": "^8"
   },
   "scripts": {
+    "build": "cds build",
     "start": "cds watch --profile hybrid",
     "startProd": "cds-serve"
   },

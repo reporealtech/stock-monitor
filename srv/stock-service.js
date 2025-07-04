@@ -38,26 +38,30 @@ module.exports = async (srv) => {
     if(notYetAlerted.length > 0) { 
       logger.debug(`access_token: ${access_token.substring(0,10)}...`)
     
-      const response=await fetch(process.env.ALERT_PUSH_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(
-          { 
-            "eventType": "LowStockAlert", 
-            "eventTimestamp": Math.round(new Date().getTime()/1000), 
-            "resource": { "resourceName": "web-shop", "resourceType": "app" }, 
-            "severity": "FATAL",
-            "category": "ALERT", 
-            "subject": `Low stock for ${items.length}`,
-            "body": items.map(item=>`ID: ${item.ID}, Material: ${item.material}, quantity: ${item.quantity}`).join(" ")
-        })
-      });
-      logger.debug(`alert result: ${response.statusText} (${response.status})`)
-      if(response.ok) {
-        alreadyAlerted.push(...notYetAlerted);
+      try {
+        const response=await fetch(process.env.ALERT_PUSH_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(
+            { 
+              "eventType": "LowStockAlert", 
+              "eventTimestamp": Math.round(new Date().getTime()/1000), 
+              "resource": { "resourceName": "web-shop", "resourceType": "app" }, 
+              "severity": "FATAL",
+              "category": "ALERT", 
+              "subject": `Low stock for ${items.length}`,
+              "body": items.map(item=>`ID: ${item.ID}, Material: ${item.material}, quantity: ${item.quantity}`).join(" ")
+          })
+        });
+        logger.debug(`alert result: ${response.statusText} (${response.status})`)
+        if(response.ok) {
+          alreadyAlerted.push(...notYetAlerted);
+        }
+      } catch (error) {
+        logger.error(`Error sending alert: ${error.message}`);
       }
     } else {
       logger.debug('No new low stock items to alert.')
